@@ -13,7 +13,7 @@
 
 具体流程见下。
 
-## 安装依赖 🧰
+## 🧰 安装依赖 
 **安装xtuner**
 ```python
 pip install -U 'xtuner[deepspeed]
@@ -25,7 +25,7 @@ git clone https://github.com/InternLM/xtuner.git
 cd xtuner
 pip install -e '.[all]'
 ```
-## 调用配置、微调 🖥️
+## 🖥️ 调用配置、微调
 
 这个时候，我们手头上应该已经有了数据集和Xtuner工具。
 
@@ -60,4 +60,28 @@ XTuner 内置了多种策略，包括 ZeRO-1、ZeRO-2、ZeRO-3。 [——引自�
 
 ```python
 xtuner convert merge./{LLM路径} ./{ADAPTER路径} ./{保存路径} --max-shard-size 2GB
+```
+
+* 这个时候，我们可以：
+  1.直接使用xtuner的工具与模型对话，快捷而直接。
+  2.对模型进行部署，使用任意框架，例如LMDeploy。
+
+
+## 📲 部署 
+
+**安装LMDeploy**
+
+```python
+pip install lmdeploy
+```
+
+**格式转换**
+```python
+lmdeploy convert ｛原模型｝｛微调模型｝
+```
+* 在本地生成workspace文件夹，随后通过命令行对话。
+
+
+**直接调用本地模型对话**
+```python
 ```
