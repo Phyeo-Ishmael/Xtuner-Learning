@@ -44,6 +44,26 @@ vi ${SAVE_PATH}/${CONFIG_NAME}_copy.py
 
 **安装模型，并测试模型**
 ```python
+pip install modelscope
+from modelscope import snapshot_download, AutoTokenizer, AutoModelForCausalLM
+import torch
+
+# 将模型下载到指定的数据盘路径，这里以InternLM2-7B-Chat和 /root/autodl-tmp为例
+model_dir = snapshot_download("Shanghai_AI_Laboratory/internlm2-chat-7b", cache_dir="/root/autodl-tmp")
+
+# 加载分词器和模型
+tokenizer = AutoTokenizer.from_pretrained(model_dir, device_map="auto", trust_remote_code=True)
+model = AutoModelForCausalLM.from_pretrained(model_dir, device_map="auto", trust_remote_code=True, torch_dtype=torch.float16)
+
+# 设置模型为推理模式
+model = model.eval()
+
+# 进行对话测试
+response, history = model.chat(tokenizer, "你好", history=[])
+print(response)
+
+response, history = model.chat(tokenizer, "请提供三个管理时间的建议。", history=history)
+print(response)
 ```
 
 **微调**
@@ -84,4 +104,43 @@ lmdeploy convert ｛原模型｝｛微调模型｝
 
 **直接调用本地模型对话**
 ```python
+from IPython.display import display
+import ipywidgets as widgets
+from transformers import AutoTokenizer, AutoModelForCausalLM
+import torch
+
+# 使用本地路径
+model_name_or_path = "写入你的路径"
+
+tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, trust_remote_code=True)
+model = AutoModelForCausalLM.from_pretrained(model_name_or_path, trust_remote_code=True, torch_dtype=torch.bfloat16).cuda()
+model.eval()
+
+# 初始系统提示
+system_prompt = '''在这里输入你对AI的系统提示词。'''
+
+# 初始化历史记录
+history = []
+
+# 创建输入框和按钮
+input_box = widgets.Textarea(placeholder='与AI对话...')
+output_box = widgets.Output()
+send_button = widgets.Button(description='发送')
+
+# 定义按钮点击事件
+def on_send_button_clicked(b):
+    global history
+    with output_box:
+        user_input = input_box.value
+        input_box.value = ''
+        response, history = model.chat(tokenizer, user_input, meta_instruction=system_prompt, history=history)
+        print('', user_input)
+        print('机器人:', response)
+
+# 绑定事件
+send_button.on_click(on_send_button_clicked)
+
+# 显示小部件
+display(input_box, send_button, output_box)
 ```
+
