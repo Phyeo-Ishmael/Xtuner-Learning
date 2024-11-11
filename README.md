@@ -42,4 +42,22 @@ vi ${SAVE_PATH}/${CONFIG_NAME}_copy.py
 > 此处对于配置的修改应当与你所要进行的工作类别、持有的算力资源相关，例如：使用InternLM2-7B-Chat模型，进行QLoRA微调：internlm2_chat_7b_qlora，当然也可以直接采用配置。
 
 
+**安装模型，并测试模型**
+```python
+```
 
+**微调**
+```python
+xtuner train ${CONFIG_NAME_OR_PATH}
+```
+> 如果期望微调的效率得到优化，请加上`--deepspeed`，并且可以附加上`deepspeed_zero2`这样的优化策略。
+XTuner 内置了多种策略，包括 ZeRO-1、ZeRO-2、ZeRO-3。 [——引自官网](https://github.com/InternLM/xtuner/blob/main/README_zh-CN.md)
+
+
+微调结束后，在本地的work_dirs文件夹内会有保存的checkpoint,选择对应配置文件和checkpoint，指定保存路径，现在我们将模型转换为huggingface格式。
+
+**最后，将它合并到大语言模型**
+
+```python
+xtuner convert merge./{LLM路径} ./{ADAPTER路径} ./{保存路径} --max-shard-size 2GB
+```
